@@ -1,0 +1,45 @@
+Dataset,Experiment,Method,ARI_vs_GT,Bootstrap_Stability,Notes
+Breast Cancer,Baseline,KMeans+StandardScaler k=2,0.6536246043910179,0.9504928872842793,NMI=0.532
+Wine,Baseline,KMeans+StandardScaler k=3,0.8974949815093207,0.9647555813706747,NMI=0.876
+PBMC 3k,Baseline,KMeans+StandardScaler k=8,0.779062290059806,0.7659088685407621,NMI=0.811
+Breast Cancer,Preprocessing,No scaling (raw),0.49142453622455523,,Sil=0.697
+Breast Cancer,Preprocessing,StandardScaler (z-score),0.6536246043910179,,Sil=0.343
+Breast Cancer,Preprocessing,"MinMaxScaler [0,1]",0.7301749027614344,,Sil=0.385
+Breast Cancer,Preprocessing,RobustScaler (IQR),0.6291458866050096,,Sil=0.366
+Wine,Preprocessing,No scaling (raw),0.37111371823084754,,Sil=0.571
+Wine,Preprocessing,StandardScaler (z-score),0.8974949815093207,,Sil=0.285
+Wine,Preprocessing,"MinMaxScaler [0,1]",0.8536602842727952,,Sil=0.301
+Wine,Preprocessing,RobustScaler (IQR),0.8950582389649661,,Sil=0.265
+PBMC 3k,Preprocessing,Raw counts (top 2000 var genes),0.35387302133917825,,Sil=0.099
+PBMC 3k,Preprocessing,Normalised only (no log),0.4498665518078904,,Sil=0.072
+PBMC 3k,Preprocessing,Normalised + log1p,0.5789794754720569,,Sil=0.010
+PBMC 3k,Preprocessing,Normalised + log1p + scaled,0.6331517390316196,,Sil=0.005
+Breast Cancer,Dim Reduction,No reduction,0.6536246043910179,0.9528744788922164,dims=30
+Breast Cancer,Dim Reduction,PCA-2,0.6592305570949524,0.9608781546516078,dims=2
+Breast Cancer,Dim Reduction,PCA-10,0.6707206476880808,0.9525673739872715,dims=10
+Breast Cancer,Dim Reduction,PCA-95pct,0.6707206476880808,0.9525673739872715,dims=10
+Breast Cancer,Dim Reduction,UMAP-2,0.5612221993712443,0.9709168146908776,dims=2
+Wine,Dim Reduction,No reduction,0.8974949815093207,0.960088677765024,dims=13
+Wine,Dim Reduction,PCA-2,0.8950582389649661,0.9379754905739719,dims=2
+Wine,Dim Reduction,PCA-10,0.8974949815093207,0.9533444470641194,dims=10
+Wine,Dim Reduction,PCA-95pct,0.8974949815093207,0.9533444470641194,dims=10
+Wine,Dim Reduction,UMAP-2,0.7741763976704018,1.0,dims=2
+PBMC 3k,Dim Reduction,No reduction (1838 HVGs),0.779062290059806,0.782440779897186,dims=1838
+PBMC 3k,Dim Reduction,PCA-10,0.8978791031432356,0.8361904512463004,dims=10
+PBMC 3k,Dim Reduction,PCA-50,0.651901828303261,0.8204368777222815,dims=50
+PBMC 3k,Dim Reduction,UMAP-2,0.11569236068028858,0.9306825649359121,dims=2
+Breast Cancer,Algorithm,KMeans (k-means++),0.6536246043910179,,
+Breast Cancer,Algorithm,KMeans (random init),0.6536246043910179,,
+Breast Cancer,Algorithm,Agglomerative (ward),0.5750409366326297,,
+Breast Cancer,Algorithm,Agglomerative (complete),0.0048283446965917305,,
+Breast Cancer,Algorithm,Agglomerative (average),0.0072761828173037914,,
+Wine,Algorithm,KMeans (k-means++),0.8974949815093207,,
+Wine,Algorithm,KMeans (random init),0.8974949815093207,,
+Wine,Algorithm,Agglomerative (ward),0.7899332213582837,,
+Wine,Algorithm,Agglomerative (complete),0.5771435822032458,,
+Wine,Algorithm,Agglomerative (average),-0.005441973296580639,,
+PBMC 3k,Algorithm,KMeans (k-means++),0.779062290059806,,
+PBMC 3k,Algorithm,KMeans (random init),0.757162183511991,,
+PBMC 3k,Algorithm,Agglomerative (ward),0.7058312286081799,,
+PBMC 3k,Algorithm,Agglomerative (complete),0.11179585943812986,,
+PBMC 3k,Algorithm,Agglomerative (average),0.006839414538543532,,

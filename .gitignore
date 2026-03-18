@@ -1,0 +1,21 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Unexecuted notebook (executed version is tracked instead)
+clustering_stability_analysis.ipynb
+clustering_stability_analysis.html
+
+# UV project files not needed by readers
+uv.lock
+pyproject.toml
+
+# Downloaded data files (regenerated automatically by scanpy on first run)
+data/

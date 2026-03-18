@@ -1,0 +1,36 @@
+{
+  "breast_cancer": {
+    "baseline_ari": 0.6536246043910179,
+    "baseline_silhouette": 0.34338224069077816,
+    "baseline_nmi": 0.5324078598532422,
+    "bootstrap_mean_ari_standard": 0.9504928872842793,
+    "bootstrap_std_ari_standard": 0.04599243978764493,
+    "best_scaler_ari": 0.7301749027614344,
+    "worst_scaler_ari": 0.49142453622455523,
+    "preprocessing_ari_range": 0.23875036653687914,
+    "min_pairwise_scaler_ari": 0.49623538611502815
+  },
+  "wine": {
+    "baseline_ari": 0.8974949815093207,
+    "baseline_silhouette": 0.2848589191898987,
+    "baseline_nmi": 0.8758935341223069,
+    "bootstrap_mean_ari_standard": 0.9647555813706747,
+    "bootstrap_std_ari_standard": 0.04231735272800692,
+    "best_scaler_ari": 0.8974949815093207,
+    "worst_scaler_ari": 0.37111371823084754,
+    "preprocessing_ari_range": 0.5263812632784732,
+    "min_pairwise_scaler_ari": 0.3543189207971098
+  },
+  "pbmc_3k": {
+    "baseline_ari": 0.779062290059806,
+    "baseline_silhouette": 0.002864162903279066,
+    "baseline_nmi": 0.8108374674828912,
+    "bootstrap_mean_ari_standard": 0.7659088685407621,
+    "bootstrap_std_ari_standard": 0.10285330133097434,
+    "best_pipeline_ari": 0.6331517390316196,
+    "worst_pipeline_ari": 0.35387302133917825,
+    "preprocessing_ari_range": 0.27927871769244134,
+    "min_pairwise_pipeline_ari": 0.2917361039348034,
+    "ground_truth_note": "Louvain-derived cell type annotations. Not an independent label set."
+  }
+}
