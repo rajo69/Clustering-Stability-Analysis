@@ -256,8 +256,7 @@ It is lower than the sklearn datasets (0.95 to 0.96) and has higher variance (st
 
 To reproduce:
 ```bash
-git clone https://github.com/<your-username>/Bio_Clustering
-cd Bio_Clustering/clustering_stability
+git clone https://github.com/rajo69/clustering-stability-analysis.git
 uv venv .venv
 source .venv/Scripts/activate   # Windows: .venv\Scripts\activate
 uv pip install -r requirements.txt
