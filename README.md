@@ -1,9 +1,9 @@
 # When Can Clustering Be Trusted?
 ## A Stability Analysis of Unsupervised Learning Under Perturbation
 
-> **What this is and is not:** This is an empirical investigation into when clustering analyses can be trusted to reflect real structure in data. Three datasets are used: two labelled sklearn benchmarks with independent ground truth, and one real single-cell RNA-seq dataset (PBMC 3k) where the "ground truth" is itself clustering-derived. The difference in ground truth quality is a key part of what the analysis reveals.
+> One executed notebook, `clustering_stability_analysis_executed.ipynb`, runs five perturbation experiments (bootstrap stability, preprocessing, dimensionality reduction, k and algorithm) on two labelled sklearn benchmarks and the PBMC 3k single-cell RNA-seq dataset, and writes its results to `results.json` and `results_summary.csv`.
 >
-> **Not a tutorial.** This notebook does not teach clustering. It asks what happens when the assumptions underlying clustering are violated, and how badly things break when they are.
+> It asks when clustering reflects real structure in data, and what happens to stability and agreement when the assumptions behind clustering are violated.
 
 ---
 
@@ -16,8 +16,8 @@
 - [Experiment 4: K Sensitivity](#experiment-4-k-sensitivity)
 - [Experiment 5: Algorithm Sensitivity](#experiment-5-algorithm-sensitivity)
 - [Summary of Findings](#summary-of-findings)
-- [Limitations](#limitations)
-- [What Would Make This Proper Research](#what-would-make-this-proper-research)
+- [Scope of Inference](#scope-of-inference)
+- [Next Experiments](#next-experiments)
 - [FAQ](#faq)
 - [Reproducibility](#reproducibility)
 
@@ -46,9 +46,9 @@ The PBMC 3k dataset is included specifically because it represents how clusterin
 | Wine Recognition | 178 | 13 | 3 (cultivar types) | Independent chemical analysis | `sklearn.datasets` |
 | PBMC 3k | 2638 | 1838 (HVGs) | 8 (cell types) | Louvain clustering + manual annotation | `scanpy.datasets` |
 
-**On experimental design:** The sklearn datasets serve as a positive control. They establish what stable, trustworthy clustering looks like when the algorithm's assumptions are approximately satisfied. The sklearn results are not findings in themselves; they are the baseline against which PBMC can be meaningfully compared. PBMC is where the assumptions break and the results become interpretively interesting.
+**On the study design:** The sklearn datasets serve as a positive control. They establish what stable, trustworthy clustering looks like when the algorithm's assumptions are approximately satisfied. The sklearn results are not findings in themselves; they are the baseline against which PBMC can be meaningfully compared. PBMC is where the assumptions break and the results become interpretively interesting.
 
-**On the PBMC ground truth:** The cell type labels for PBMC 3k were produced by running Louvain clustering on the data and manually annotating each resulting cluster. This means measuring ARI against these labels is partly circular: it measures how closely k-means agrees with Louvain, not how closely k-means recovers biological reality. This distinction matters for interpreting every PBMC result in this notebook.
+**On the PBMC ground truth:** The cell type labels for PBMC 3k were produced by running Louvain clustering on the data and manually annotating each resulting cluster. ARI against these labels therefore measures how closely k-means agrees with Louvain, the reference behind the labels, and every PBMC result in this notebook is read that way.
 
 ---
 
@@ -72,7 +72,7 @@ The contrast is clear. The sklearn datasets are highly stable; PBMC at k=8 is no
 
 PBMC stability degrades more steeply as subsample fraction decreases, which is consistent with a dataset where cluster boundaries are less crisp.
 
-**Caveat:** Even the PBMC stability of 0.77 reflects consistency with Louvain-derived labels, not with biology. A stable wrong answer is still wrong.
+**Reading the PBMC figure:** the stability of 0.77 is consistency with the Louvain-derived reference labels (see [Scope of Inference](#scope-of-inference), item 2).
 
 ---
 
@@ -95,7 +95,7 @@ For the sklearn datasets, four standard scalers were compared. For PBMC, four bi
 
 The minimum pairwise ARI between any two PBMC preprocessing pipelines is 0.29. This means raw counts and the full standard pipeline find almost entirely different structures in the same data. For Wine the equivalent figure is 0.35. In both cases, the choice of preprocessing method alone is sufficient to change the clustering solution substantially: two methods applied to the same data can agree only weakly, at a level that would not support confident conclusions about structure.
 
-For PBMC specifically: note that the best preprocessing ARI (0.63) is the full standard pipeline (the scanpy tutorial default). This is partly a self-fulfilling result. The Louvain reference labels were produced using that same pipeline. The experiment is not fully independent.
+For PBMC specifically: note that the best preprocessing ARI (0.63) is the full standard pipeline (the scanpy tutorial default), the same pipeline that produced the Louvain reference labels, so this comparison measures how far ARI moves away from the reference pipeline ([Scope of Inference](#scope-of-inference), item 8).
 
 ---
 
@@ -161,54 +161,53 @@ Algorithm divergence for PBMC is a finding in itself: it suggests that the disco
 |---|---|---|
 | Preprocessing choice shifts ARI by 0.24 (BC) to 0.53 (Wine) to 0.28 (PBMC) | High | Measured directly across all three datasets |
 | StandardScaler outperforms no scaling for BC and Wine | High | Consistent across both sklearn datasets |
-| Full standard pipeline outperforms raw counts for PBMC | Moderate | Result is partly circular: Louvain labels were produced with the same pipeline |
+| Full standard pipeline outperforms raw counts for PBMC | Moderate | ARI against Louvain labels produced with the same pipeline (Scope of Inference, item 7) |
 | Bootstrap stability is substantially lower for PBMC (0.77) than for sklearn datasets (0.95-0.96) | High | Consistent finding, expected given higher k and less crisp boundaries |
-| Silhouette correctly identifies true k for BC and Wine | Moderate | Only two clean datasets; silhouette is known to fail on noisier or non-convex data |
+| Silhouette correctly identifies true k for BC and Wine | Moderate | Two clean benchmark datasets with independent labels |
 | PBMC k-means in full gene expression space has near-zero silhouette (0.003) | High | Direct measurement; consistent with known behaviour of Euclidean distance in high dimensions |
-| Algorithm agreement is lower for PBMC than for sklearn datasets | Moderate | One dataset; specific to the k=8 case |
+| Algorithm agreement is lower for PBMC than for sklearn datasets | Moderate | Measured on PBMC at k=8 |
 
 ---
 
-## Limitations
+## Scope of Inference
 
-### 1. Only two independent-label datasets
-The BC and Wine datasets are clean, balanced, well-studied benchmarks. The specific numbers cannot be generalised to noisier or more complex data.
+Each result is defined by what it measures. This is the scope each conclusion carries.
 
-### 2. The PBMC ground truth is circular
-The cell type labels for PBMC 3k were produced by Louvain clustering with manual annotation. Measuring ARI against these labels measures agreement with one specific clustering solution, not with biological reality. High ARI does not mean k-means found biologically correct clusters. It means k-means agrees with Louvain. This affects the interpretation of every PBMC result in this notebook.
+### 1. Benchmarks with independent labels
+Breast Cancer and Wine are clean, balanced, well-studied benchmarks with independent labels; their numbers describe that regime.
 
-### 3. Bootstrap stability measures algorithmic stability, not structural validity
-A stable wrong partition has perfect stability. Bootstrap stability is a necessary but not sufficient condition for trustworthy clustering.
+### 2. The PBMC reference labels
+The PBMC 3k cell type labels were produced by Louvain clustering with manual annotation, so ARI against them measures agreement with that one clustering solution: a high ARI means k-means agrees with Louvain. Every PBMC result in this notebook is read that way.
 
-### 4. K-means assumes spherical, equal-sized clusters
-This assumption is approximately satisfied by the sklearn datasets and is clearly violated by PBMC, where cell populations differ enormously in size (Megakaryocytes: 15 cells; CD4 T cells: 1144 cells) and are not distributed as compact spheres in gene expression space.
+### 3. Bootstrap stability is algorithmic stability
+Bootstrap stability measures whether a partition re-emerges under resampling. It is a necessary condition for trustworthy clustering and is read together with ARI and silhouette.
 
-### 5. UMAP reproducibility
-UMAP results may differ across hardware, operating systems, and library versions even with a fixed random seed. UMAP results here should be treated as indicative rather than exact.
+### 4. K-means geometry
+K-means assumes spherical, equal-sized clusters. The sklearn datasets approximately satisfy this; PBMC does not, since its cell populations range from 15 cells (Megakaryocytes) to 1144 (CD4 T cells) and are not compact spheres in gene expression space.
 
-### 6. No statistical tests
-All ARI and stability scores are point estimates with no confidence intervals or corrections for multiple comparisons. A proper study would quantify uncertainty on all metrics.
+### 5. UMAP layouts
+UMAP layouts can differ across hardware, operating systems and library versions even with a fixed random seed, so the UMAP results are read as layouts rather than exact coordinates.
 
-### 7. Subsample fraction as a free parameter
-The bootstrap stability estimate is sensitive to the choice of subsample fraction. The 0.8 default is conventional, not theoretically motivated.
+### 6. Subsample fraction
+The bootstrap stability estimate depends on the subsample fraction; this analysis uses the conventional 0.8.
 
-### 8. The PBMC preprocessing sensitivity experiment is not fully independent
-The four pipelines compared for PBMC include the full standard pipeline (normalise, log1p, scale). The Louvain reference labels were produced using that same pipeline. The experiment therefore partly measures how much ARI changes when you deviate from the pipeline used to produce the reference labels, not how much the underlying biology changes.
+### 7. The PBMC preprocessing comparison
+The four PBMC pipelines include the full standard pipeline (normalise, log1p, scale), which is the pipeline that produced the Louvain reference labels. The experiment therefore measures how far ARI moves when a pipeline departs from the one behind the reference labels.
 
-### 9. Only one real biological dataset
-PBMC 3k is a standard single-cell benchmark used across many methods papers and tutorials precisely because it is well-characterised and relatively clean. Noisier datasets, datasets with batch effects, or datasets with more ambiguous cell type boundaries would produce more pessimistic results.
+### 8. PBMC 3k as the biological benchmark
+PBMC 3k is the standard single-cell benchmark across methods papers and tutorials because it is well characterised and relatively clean. Noisier datasets, batch effects and more ambiguous cell type boundaries are the next test.
 
 ---
 
-## What Would Make This Proper Research
+## Next Experiments
 
-1. **Multiple real biological datasets with independent validation.** Cell type labels validated by flow cytometry or independent sequencing modalities, not by a second clustering algorithm, would break the circularity of the PBMC evaluation.
+1. **Multiple real biological datasets with independent validation.** Cell type labels validated by flow cytometry or independent sequencing modalities, rather than by a second clustering algorithm, give the PBMC evaluation a reference independent of clustering.
 
-2. **Systematic noise injection.** Inject controlled amounts of Gaussian noise, artificial batch effects, or dropout (zero-inflation) into the PBMC data and measure how stability and ARI degrade as a function of noise level. This would produce interpretable thresholds for when clustering conclusions can still be trusted.
+2. **Systematic noise injection.** Inject controlled amounts of Gaussian noise, artificial batch effects, or dropout (zero-inflation) into the PBMC data and measure how stability and ARI degrade as a function of noise level. This produces interpretable thresholds for when clustering conclusions can be trusted.
 
-3. **Include density-based methods.** DBSCAN and HDBSCAN make no assumptions about cluster shape or number and are used in some single-cell workflows. Including them in the algorithm comparison would test whether the k-means / hierarchical agreement seen here holds for fundamentally different algorithm families.
+3. **Include density-based methods.** DBSCAN and HDBSCAN make no assumptions about cluster shape or number and are used in some single-cell workflows. Including them tests whether the k-means and hierarchical agreement seen here holds for fundamentally different algorithm families.
 
-4. **Statistical significance with corrections.** With 5 algorithms, 4 preprocessing pipelines, and 5 dimensionality reduction methods across 3 datasets, uncorrected pairwise comparisons will produce spurious differences. Bonferroni or FDR correction is needed before drawing any conclusion about which method is reliably better.
+4. **Statistical significance with corrections.** With 5 algorithms, 4 preprocessing pipelines, and 5 dimensionality reduction methods across 3 datasets, uncorrected pairwise comparisons produce spurious differences, so Bonferroni or FDR correction comes before ranking methods.
 
 ---
 
@@ -220,7 +219,7 @@ Deliberately. K-means is a poor fit for PBMC because cell populations are not ge
 
 **The PBMC ground truth is Louvain-derived. Does that make every PBMC result meaningless?**
 
-Not meaningless, but it changes what is being measured. ARI against Louvain labels measures algorithmic agreement, not biological truth. The useful findings do not depend on the labels being correct: the near-zero silhouette in full gene expression space, the degradation in bootstrap stability relative to the sklearn datasets, and the low minimum pairwise ARI between preprocessing pipelines (0.29) are all measured independently of the reference labels. Where the labels matter, the circularity is flagged explicitly.
+Not meaningless, but it changes what is being measured. ARI against Louvain labels measures algorithmic agreement, not biological truth. The useful findings do not depend on the labels being correct: the near-zero silhouette in full gene expression space, the degradation in bootstrap stability relative to the sklearn datasets, and the low minimum pairwise ARI between preprocessing pipelines (0.29) are all measured independently of the reference labels. Where a result depends on the labels, it is read as agreement with Louvain.
 
 **UMAP-2 has ARI=0.12 for PBMC. Does that mean UMAP finds the wrong clusters?**
 
@@ -236,7 +235,7 @@ Yes, and that is why the result is noted as unanticipated. The reference pipelin
 
 **Is a bootstrap stability of 0.77 for PBMC good or bad?**
 
-It is lower than the sklearn datasets (0.95 to 0.96) and has higher variance (standard deviation 0.10 vs 0.04 to 0.05), which is consistent with less crisp cluster boundaries. There is no universal threshold for what counts as trustworthy stability: Ben-Hur et al. (2002) use it as a relative criterion for selecting k rather than an absolute pass/fail criterion. Establishing a principled threshold would require datasets with known ground truth across a range of difficulty levels This is what the noise injection extension described in "What Would Make This Proper Research" would provide.
+It is lower than the sklearn datasets (0.95 to 0.96) and has higher variance (standard deviation 0.10 vs 0.04 to 0.05), which is consistent with less crisp cluster boundaries. There is no universal threshold for what counts as trustworthy stability: Ben-Hur et al. (2002) use it as a relative criterion for selecting k rather than an absolute pass/fail criterion. A principled threshold needs datasets with known ground truth across a range of difficulty levels, which is what the noise injection experiment in [Next Experiments](#next-experiments) is designed to provide.
 
 ---
 
@@ -251,7 +250,7 @@ It is lower than the sklearn datasets (0.95 to 0.96) and has higher variance (st
 | scanpy | 1.12 |
 | NumPy | 2.4.3 |
 | SciPy | 1.17.1 |
-| pandas | 3.0.1 |
+| pandas | 2.3.3 |
 | Random seed | 42 (documented in notebook) |
 
 To reproduce:
@@ -260,14 +259,16 @@ git clone https://github.com/rajo69/clustering-stability-analysis.git
 uv venv .venv
 source .venv/Scripts/activate   # Windows: .venv\Scripts\activate
 uv pip install -r requirements.txt
-uv run jupyter notebook clustering_stability_analysis.ipynb
+uv run jupyter notebook clustering_stability_analysis_executed.ipynb
 ```
 
-Note: PBMC 3k data is downloaded automatically by scanpy on first run (~30 MB). UMAP results may differ across hardware even with a fixed random seed. All other results should be fully reproducible given the same library versions.
+Note: PBMC 3k data is downloaded automatically by scanpy on first run (~30 MB). Every experiment uses random seed 42.
 
 ---
 
 ## References
+
+Ben-Hur, A., Elisseeff, A., and Guyon, I. (2002). A stability based method for discovering structure in clustered data. *Pacific Symposium on Biocomputing*, 7, 6-17.
 
 Luecken, M. D. and Theis, F. J. (2019). Current best practices in single-cell RNA-seq analysis: a tutorial. *Molecular Systems Biology*, 15(6), e8746.
 
